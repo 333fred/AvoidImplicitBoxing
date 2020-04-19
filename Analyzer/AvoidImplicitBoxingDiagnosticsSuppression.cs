@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -39,13 +40,13 @@ namespace AvoidImplicitBoxing
                 }
 
                 var model = context.GetSemanticModel(sourceTree);
-                var conversionOperation = model.GetOperation(conversionSyntax);
-                if (!AvoidImplicitBoxingAnalyzer.IsImplicitBoxingConversion(conversionOperation))
-                {
-                    return;
-                }
+                var operation = model.GetOperation(conversionSyntax);
 
-                context.ReportSuppression(Suppression.Create(SuppressionDescriptor, diagnostic));
+                if (operation is IConversionOperation { IsImplicit: false } conversionOperation
+                    && AvoidImplicitBoxingAnalyzer.IsBoxingConversion(conversionOperation))
+                {
+                    context.ReportSuppression(Suppression.Create(SuppressionDescriptor, diagnostic));
+                }
             }
         }
     }

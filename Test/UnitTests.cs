@@ -35,5 +35,21 @@ class C
                     VerifyCS.Diagnostic().WithSpan(6, 20, 6, 21).WithArguments("int", "object")
                 );
         }
+
+        [TestMethod]
+        public async Task SimpleExplicitBoxingNoWarning()
+        {
+            var test = @"
+class C
+{
+    void M()
+    {
+        object o = (object)1;
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

@@ -38,7 +38,6 @@ namespace AvoidImplicitBoxing
             }
 
             var conversionOperation = (IConversionOperation)context.Operation;
-            object o = (object)1;
 
             // Implicit boxing conversion detected: flag
             context.ReportDiagnostic(Diagnostic.Create(Rule, conversionOperation.Syntax.GetLocation(),
@@ -51,13 +50,18 @@ namespace AvoidImplicitBoxing
             }
         }
 
-        internal static bool IsImplicitBoxingConversion(IOperation? baseOperation)
+        private static bool IsImplicitBoxingConversion(IOperation? baseOperation)
         {
             if (!(baseOperation is IConversionOperation { IsImplicit: true } conversionOperation))
             {
                 return false;
             }
 
+            return IsBoxingConversion(conversionOperation);
+        }
+
+        internal static bool IsBoxingConversion(IConversionOperation conversionOperation)
+        {
             return conversionOperation.Language == LanguageNames.CSharp
                 ? isCSBoxingConversion(conversionOperation)
                 : isVBBoxingConversion(conversionOperation);
